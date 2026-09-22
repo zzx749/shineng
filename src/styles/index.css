@@ -1,0 +1,307 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: #f0f2f5;
+}
+
+/* 登录 / 注册页 */
+.auth-page {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1890ff 0%, #0b3d7c 100%);
+}
+
+.auth-card {
+  width: 400px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.auth-title {
+  margin: 8px 0 4px;
+  text-align: center;
+  font-size: 20px;
+  color: #303133;
+}
+
+.auth-sub {
+  margin: 0 0 16px;
+  text-align: center;
+  color: #909399;
+}
+
+.auth-btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.auth-links {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-hint {
+  margin-top: 16px;
+}
+
+/* 主布局 */
+.layout {
+  height: 100%;
+}
+
+.aside {
+  background: #001529;
+}
+
+.aside .logo {
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.aside .el-menu {
+  border-right: none;
+}
+
+.header {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #303133;
+}
+
+.main {
+  padding: 16px;
+  overflow: auto;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.elder-form {
+  max-width: 560px;
+}
+
+/* 评估表单 */
+.assess-dim {
+  margin-bottom: 24px;
+}
+
+.assess-dim-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 4px;
+}
+
+.assess-dim-score {
+  color: #909399;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.assess-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+}
+
+.assess-item-name {
+  min-width: 120px;
+}
+
+.assess-summary {
+  margin-top: 8px;
+}
+
+.mismatch-tip {
+  margin-top: 12px;
+}
+
+/* 报告打印 */
+.print-area {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    padding: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ===== 登录/注册页 logo ===== */
+.auth-logo {
+  width: 64px;
+  height: 64px;
+  margin: 6px auto 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1890ff 0%, #0b3d7c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(24, 144, 255, 0.4);
+}
+
+/* ===== 页面切换动画 ===== */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.22s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.page-enter-active {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.page-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ===== 登录/注册成功动画 ===== */
+.login-success {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10, 30, 55, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.checkmark {
+  width: 84px;
+  height: 84px;
+}
+
+.checkmark-circle {
+  stroke: #67c23a;
+  stroke-width: 3;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: check-stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  stroke: #67c23a;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: check-stroke 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.55s forwards;
+}
+
+@keyframes check-stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.success-text {
+  margin-top: 16px;
+  font-size: 22px;
+  font-weight: 600;
+  animation: success-pop 0.4s ease 0.7s both;
+}
+
+.success-sub {
+  margin-top: 6px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  animation: success-pop 0.4s ease 0.85s both;
+}
+
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-enter-active,
+.success-leave-active {
+  transition: opacity 0.3s ease;
+}
+.success-enter-from,
+.success-leave-to {
+  opacity: 0;
+}
