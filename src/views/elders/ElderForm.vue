@@ -1,37 +1,43 @@
 <template>
-  <el-card>
-    <template #header>{{ isEdit ? '编辑老人' : '新增老人' }}</template>
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="110px" class="elder-form">
-      <el-form-item label="姓名" prop="name">
-        <el-input v-model="form.name" placeholder="请输入姓名" />
-      </el-form-item>
-      <el-form-item label="身份证号" prop="idCard">
-        <el-input v-model="form.idCard" placeholder="输入 18 位身份证号后自动推算年龄与性别" @blur="autoFill" />
-      </el-form-item>
-      <el-form-item label="性别" prop="gender">
-        <el-radio-group v-model="form.gender">
-          <el-radio value="男">男</el-radio>
-          <el-radio value="女">女</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="年龄" prop="age">
-        <el-input-number v-model="form.age" :min="0" :max="150" />
-      </el-form-item>
-      <el-form-item label="地址" prop="address">
-        <el-input v-model="form.address" placeholder="请输入家庭住址" />
-      </el-form-item>
-      <el-form-item label="电话" prop="phone">
-        <el-input v-model="form.phone" placeholder="请输入联系电话" />
-      </el-form-item>
-      <el-form-item label="儿女电话" prop="childrenPhone">
-        <el-input v-model="form.childrenPhone" placeholder="请输入紧急联系（儿女）电话" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" :loading="loading" @click="onSubmit">保存</el-button>
-        <el-button @click="$router.back()">取消</el-button>
-      </el-form-item>
-    </el-form>
-  </el-card>
+  <div class="page">
+    <div class="page-head">
+      <h2 class="page-title">{{ isEdit ? '编辑老人' : '新增老人' }}</h2>
+      <p class="page-sub">填写老人基本信息，输入身份证号可自动推算年龄与性别</p>
+    </div>
+
+    <div class="page-card">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="110px" class="elder-form">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name" placeholder="请输入姓名" />
+        </el-form-item>
+        <el-form-item label="身份证号" prop="idCard">
+          <el-input v-model="form.idCard" placeholder="输入 18 位身份证号后自动推算年龄与性别" @blur="autoFill" />
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-radio-group v-model="form.gender">
+            <el-radio value="男">男</el-radio>
+            <el-radio value="女">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="年龄" prop="age">
+          <el-input-number v-model="form.age" :min="0" :max="150" />
+        </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="form.address" placeholder="请输入家庭住址" />
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入联系电话" />
+        </el-form-item>
+        <el-form-item label="儿女电话" prop="childrenPhone">
+          <el-input v-model="form.childrenPhone" placeholder="请输入紧急联系（儿女）电话" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :loading="loading" @click="onSubmit">保存</el-button>
+          <el-button @click="$router.back()">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
 </template>
 
 <script setup>

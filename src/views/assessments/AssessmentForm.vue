@@ -1,9 +1,12 @@
 <template>
-  <div>
-    <el-card>
-      <template #header>失能等级评估</template>
+  <div class="page">
+    <div class="page-head">
+      <h2 class="page-title">发起评估</h2>
+      <p class="page-sub">对老年人进行失能等级评估，系统将自动计算等级并与您的判断比对</p>
+    </div>
 
-      <el-form label-width="100px" class="elder-form">
+    <div class="page-card">
+      <el-form label-width="100px">
         <el-form-item label="评估对象" required>
           <el-select
             v-model="elderId"
@@ -69,7 +72,7 @@
         <el-button type="primary" :loading="loading" @click="onSubmit">保存评估</el-button>
         <el-button @click="$router.push('/assessments')">取消</el-button>
       </div>
-    </el-card>
+    </div>
   </div>
 </template>
 
@@ -140,7 +143,7 @@ async function loadElders() {
   const data = await elderApi.list()
   elders.value = data.list
   if (route.query.elderId) {
-    elderId.value = route.query.elderId
+    elderId.value = Number(route.query.elderId)
   }
 }
 

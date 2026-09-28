@@ -2,7 +2,7 @@ import axios from 'axios'
 import { mockAdapter } from './mock/adapter'
 
 // 后端接口就绪后，把 USE_MOCK 改为 false 即可切换为真实接口
-const USE_MOCK = true
+const USE_MOCK = false
 
 const http = axios.create({
   baseURL: '/api',

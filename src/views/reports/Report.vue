@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <div class="page">
+    <div class="page-head no-print">
+      <h2 class="page-title">评估报告</h2>
+      <p class="page-sub">查看评估结论，可打印或导出 PDF 归档</p>
+    </div>
+
     <div class="toolbar no-print">
       <el-button @click="$router.back()">返回</el-button>
       <div>
@@ -10,7 +15,7 @@
 
     <div v-if="assessment" class="print-area" v-loading="loading">
       <h2 style="text-align: center; margin: 0 0 4px">老年人能力评估报告</h2>
-      <p style="text-align: center; color: #909399; margin: 0 0 20px">依据 GB/T 42195-2022《老年人能力评估规范》</p>
+      <p style="text-align: center; color: #6b7683; margin: 0 0 20px">依据 GB/T 42195-2022《老年人能力评估规范》</p>
 
       <el-descriptions title="一、老人基本信息" :column="2" border>
         <el-descriptions-item label="姓名">{{ elder?.name }}</el-descriptions-item>
@@ -40,7 +45,7 @@
         </el-descriptions-item>
       </el-descriptions>
 
-      <p style="margin-top: 24px; text-align: right">
+      <p style="margin-top: 24px; text-align: right; color: #6b7683">
         评估人：{{ assessment.assessor }} · 评估日期：{{ assessment.date }}
       </p>
     </div>

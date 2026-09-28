@@ -278,14 +278,23 @@ export async function mockAdapter(config) {
   const method = (config.method || 'get').toUpperCase()
   const url = config.url || ''
   const route = routes.find((r) => r.method === method && r.pattern.test(url))
+  let response
   if (!route) {
-    return fail(config, 404, `接口不存在：${method} ${url}`)
+    response = fail(config, 404, `接口不存在：${method} ${url}`)
+  } else {
+    try {
+      response = route.handler(config, url.match(route.pattern))
+    } catch (e) {
+      console.error('[mock] handler error', e)
+      response = fail(config, 500, '服务器内部错误')
+    }
   }
-  const match = url.match(route.pattern)
-  try {
-    return route.handler(config, match)
-  } catch (e) {
-    console.error('[mock] handler error', e)
-    return fail(config, 500, '服务器内部错误')
+  // 非 2xx 状态必须 reject，axios 的响应拦截器才会走错误分支
+  if (response.status < 200 || response.status >= 300) {
+    const error = new Error(response.data?.message || '请求失败')
+    error.response = response
+    error.config = config
+    return Promise.reject(error)
   }
+  return response
 }

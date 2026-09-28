@@ -1,8 +1,12 @@
 <template>
-  <div>
-    <el-card>
-      <template #header>用户管理</template>
-      <el-table :data="list" v-loading="loading" border stripe>
+  <div class="page">
+    <div class="page-head">
+      <h2 class="page-title">用户管理</h2>
+      <p class="page-sub">管理系统账号、姓名与角色权限</p>
+    </div>
+
+    <div class="page-card">
+      <el-table :data="list" v-loading="loading">
         <el-table-column prop="username" label="用户名" min-width="120" />
         <el-table-column prop="name" label="姓名" min-width="120" />
         <el-table-column label="角色" width="120">
@@ -12,14 +16,14 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="openEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="remove(row)">删除</el-button>
+            <el-button size="small" type="danger" link @click="remove(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-    </el-card>
+    </div>
 
     <el-dialog v-model="dialogVisible" title="编辑用户" width="420px">
       <el-form :model="form" label-width="80px">

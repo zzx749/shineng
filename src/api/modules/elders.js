@@ -1,9 +1,13 @@
 import http from '@/api/http'
+import { elderFromApi, elderToApi } from '@/api/mappers'
 
 export const elderApi = {
-  list: (params) => http.get('/elders', { params }),
-  get: (id) => http.get(`/elders/${id}`),
-  create: (payload) => http.post('/elders', payload),
-  update: (id, payload) => http.put(`/elders/${id}`, payload),
+  list: async (params) => {
+    const data = await http.get('/elders', { params })
+    return { ...data, list: data.list.map(elderFromApi) }
+  },
+  get: async (id) => elderFromApi(await http.get(`/elders/${id}`)),
+  create: async (payload) => elderFromApi(await http.post('/elders', elderToApi(payload))),
+  update: async (id, payload) => elderFromApi(await http.put(`/elders/${id}`, elderToApi(payload))),
   remove: (id) => http.delete(`/elders/${id}`),
 }
