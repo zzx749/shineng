@@ -1,7 +1,7 @@
 # 失能评估辅助系统 · 前端对接接口文档
 
 > 本文档是前端对接的唯一依据。旧《后端接口文档.md》已作废，请以本文档为准。
-> 全部接口已通过回归测试（44/44 通过，测试脚本见 `elder-eval-backend/test/regression.test.js`）。
+> 全部接口已通过回归测试（50/50 通过，测试脚本见 `elder-eval-backend/test/regression.test.js`）。
 
 ---
 
@@ -52,8 +52,8 @@
 
 ## 二、改造变更点（重点标注）
 
-1. **接口契约已更新，旧文档作废**：外层字段全部改为 `snake_case`（如 `created_at`、`id_card`、`elder_id`），主键 `id` 由字符串改为**数字（自增）**。注意 `scores` 内 5 个 key（`lifeAbility`、`workAbility`、`timeOrientation`、`personOrientation`）保留 **camelCase**。前端请按本文档字段名对齐。
-2. **22 项评估 scores 使用 JSON 存储**：`scores` 是一个 JSON 对象（22 个 key，取值 0/1/2），整体上传、整体返回。
+1. **接口契约已更新，旧文档作废**：外层字段全部改为 `snake_case`（如 `created_at`、`id_card`、`elder_id`），主键 `id` 由字符串改为**数字（自增）**。注意 `scores` 内 26 个指标 key 全部为 **camelCase**（如 `dressingUpper`、`timeOrientation`）。前端请按本文档字段名对齐。
+2. **26 项评估 scores 使用 JSON 存储**（依据 GB/T 42195-2022）：`scores` 是一个 JSON 对象（26 个 key），整体上传、整体返回。多数 key 取值 `0~4` 五档，个别 key 满分不同（上下楼梯/交通 0~3，攻击/抑郁 0~1，意识/视力/听力 0~2）。
 3. **assessor 评估员信息是快照**：`assessor` 保存评估当时的姓名快照，**不会随用户表实时更新**（改用户姓名不影响历史评估记录）。
 4. **评估人由后端自动填充**：新增评估时 `assessor`/`assessor_id` 由后端根据登录 token 自动写入，**前端无需（也不要）在请求体传评估人字段**。
 
@@ -233,8 +233,8 @@
     {
       "id": 1,
       "elder_id": 1,
-      "scores": { "feeding": 0, "dressing": 1, "bowel": 0, "bladder": 0, "toileting": 1, "transfer": 1, "walking": 2, "stairs": 2, "bathing": 2, "grooming": 1, "cognition": 0, "aggression": 0, "depression": 0, "consciousness": 0, "vision": 0, "hearing": 1, "communication": 0, "lifeAbility": 1, "workAbility": 1, "timeOrientation": 0, "personOrientation": 0, "socialContact": 1 },
-      "dimension_levels": { "adl": 2, "mental": 0, "sensory": 0, "social": 1 },
+      "scores": { "eating": 3, "grooming": 3, "bathing": 2, "dressingUpper": 3, "dressingLower": 3, "urineControl": 4, "stoolControl": 4, "toileting": 3, "bedMobility": 4, "chairTransfer": 4, "walking": 3, "stairs": 2, "timeOrientation": 4, "spaceOrientation": 4, "personOrientation": 4, "memory": 3, "comprehension": 4, "expression": 4, "aggression": 0, "depression": 0, "consciousness": 2, "vision": 2, "hearing": 1, "dailyAffairs": 3, "transport": 2, "socialContact": 3 },
+      "dimension_levels": {},
       "computed_level": 2,
       "manual_level": 2,
       "corrected": false,
@@ -256,19 +256,18 @@
 | 参数 | 类型 | 必传 | 说明 |
 | --- | --- | --- | --- |
 | elder_id | number | 是 | 关联老人 id |
-| scores | object | 是 | 22 项打分（0/1/2） |
-| dimension_levels | object | 否 | 四维度等级 `{adl,mental,sensory,social}` |
-| computed_level | number | 否 | 系统计算等级（默认 0） |
-| manual_level | number | 否 | 最终等级（默认等于 computed_level） |
+| scores | object | 是 | 26 项打分（多数 0~4，上下楼梯/交通 0~3，攻击/抑郁 0~1，意识/视力/听力 0~2） |
+| computed_level | number | 否 | 系统计算等级 0-4（默认 0） |
+| manual_level | number | 否 | 最终等级 0-4（默认等于 computed_level） |
 | correction_note | string | 否 | 纠正说明（manual_level ≠ computed_level 时**必填**） |
 | date | string | 否 | 评估日期 `YYYY-MM-DD`；不传默认取当天 |
+| qa | object | 否 | 问答观察记录 `{ photo, questions, summary }`，结构见下方说明 |
 
 ```json
 // 请求
 {
   "elder_id": 1,
-  "scores": { "feeding": 0, "dressing": 1, "bowel": 0, "bladder": 0, "toileting": 1, "transfer": 1, "walking": 2, "stairs": 2, "bathing": 2, "grooming": 1, "cognition": 0, "aggression": 0, "depression": 0, "consciousness": 0, "vision": 0, "hearing": 1, "communication": 0, "lifeAbility": 1, "workAbility": 1, "timeOrientation": 0, "personOrientation": 0, "socialContact": 1 },
-  "dimension_levels": { "adl": 2, "mental": 0, "sensory": 0, "social": 1 },
+  "scores": { "eating": 3, "grooming": 3, "bathing": 2, "dressingUpper": 3, "dressingLower": 3, "urineControl": 4, "stoolControl": 4, "toileting": 3, "bedMobility": 4, "chairTransfer": 4, "walking": 3, "stairs": 2, "timeOrientation": 4, "spaceOrientation": 4, "personOrientation": 4, "memory": 3, "comprehension": 4, "expression": 4, "aggression": 0, "depression": 0, "consciousness": 2, "vision": 2, "hearing": 1, "dailyAffairs": 3, "transport": 2, "socialContact": 3 },
   "computed_level": 2,
   "manual_level": 2,
   "date": "2026-09-24"
@@ -278,8 +277,8 @@
 {
   "id": 2,
   "elder_id": 1,
-  "scores": { "...": 0 },
-  "dimension_levels": { "adl": 2, "mental": 0, "sensory": 0, "social": 1 },
+  "scores": { "eating": 3, "grooming": 3, "...": 0 },
+  "dimension_levels": {},
   "computed_level": 2,
   "manual_level": 2,
   "corrected": false,
@@ -289,9 +288,23 @@
   "date": "2026-09-24",
   "created_at": 1720000000000
 }
-// 失败 400：elder_id/scores 为空、scores 含未知 key 或取值非 0/1/2、computed_level/manual_level 取值非 0-3、纠正未填说明
+// 失败 400：elder_id/scores 为空、scores 含未知 key 或取值超出该项满分、computed_level/manual_level 取值非 0-4、纠正未填说明
 // 失败 404：老人不存在
 ```
+
+**qa 字段结构（可选）**：问答观察记录，随评估一起存储/返回。
+
+```json
+{
+  "photo": "data:image/jpeg;base64,...",
+  "questions": [
+    { "key": "cognition", "item": "认知功能", "question": "请老人做简单计算…", "answer": 0, "note": "" }
+  ],
+  "summary": "问答观察：认知功能：正常；…"
+}
+```
+- `answer` 取值 `null`(未记录) / `0` / `1` / `2`。
+- 未做问答/未拍照时，后端存 `null`。
 
 #### 11. 评估详情
 
@@ -381,24 +394,26 @@
 
 ---
 
-## 四、scores 22 项 key 速查（对应国标 4 维度）
+## 四、scores 26 项 key 速查（GB/T 42195-2022，总分 90）
 
-| 维度 | key |
+| 一级指标（4 个） | 二级指标 key（满分） |
 | --- | --- |
-| 日常生活活动能力 adl | `feeding` 进食、`dressing` 穿脱衣、`bowel` 大便控制、`bladder` 小便控制、`toileting` 如厕、`transfer` 床椅转移、`walking` 平地行走、`stairs` 上下楼梯、`bathing` 洗澡、`grooming` 修饰 |
-| 精神状态 mental | `cognition` 认知功能、`aggression` 攻击行为、`depression` 抑郁症状 |
-| 感知觉与沟通 sensory | `consciousness` 意识水平、`vision` 视力、`hearing` 听力、`communication` 沟通交流 |
-| 社会参与 social | `lifeAbility` 生活能力、`workAbility` 工作能力、`timeOrientation` 时间/空间定向、`personOrientation` 人物定向、`socialContact` 社会交往能力 |
+| 自理能力 | `eating` 进食(4)、`grooming` 修饰(4)、`bathing` 洗澡(4)、`dressingUpper` 穿/脱上衣(4)、`dressingLower` 穿/脱裤子和鞋袜(4)、`urineControl` 小便控制(4)、`stoolControl` 大便控制(4)、`toileting` 如厕(4) |
+| 基础运动能力 | `bedMobility` 床上体位转移(4)、`chairTransfer` 床椅转移(4)、`walking` 平地行走(4)、`stairs` 上下楼梯(3) |
+| 精神状态 | `timeOrientation` 时间定向(4)、`spaceOrientation` 空间定向(4)、`personOrientation` 人物定向(4)、`memory` 记忆(4)、`comprehension` 理解能力(4)、`expression` 表达能力(4)、`aggression` 攻击行为(1)、`depression` 抑郁症状(1)、`consciousness` 意识水平(2) |
+| 感知觉与社会参与 | `vision` 视力(2)、`hearing` 听力(2)、`dailyAffairs` 执行日常事务(4)、`transport` 使用交通工具外出(3)、`socialContact` 社会交往能力(4) |
 
-每项取值 `0` / `1` / `2`；`computed_level` / `manual_level` 取值 `0` 能力完好 / `1` 轻度失能 / `2` 中度失能 / `3` 重度失能。
+- 每项得分为 `0~该项满分`，**得分越高能力越好**；总分 0~90。
+- `computed_level` / `manual_level` 取值：`0` 能力完好(≥90) / `1` 轻度失能(66~89) / `2` 中度失能(46~65) / `3` 重度失能(30~45) / `4` 完全失能(0~29)。
+- 特殊规则：意识水平=0（昏睡/昏迷）直接判为 `4` 完全失能；痴呆/精神障碍/近 30 天 2 次照护风险事件需「提高一级」（暂未纳入，见 `scoring.js` 注释）。
 
 ---
 
 ## 五、对接注意事项
 
-1. 外层字段名**全部 snake_case**，`id` 为数字，不要沿用旧文档的 camelCase / 字符串 id；`scores` 内 5 个 key（`lifeAbility`、`workAbility`、`timeOrientation`、`personOrientation`）保留 camelCase。
+1. 外层字段名**全部 snake_case**，`id` 为数字，不要沿用旧文档的 camelCase / 字符串 id；`scores` 内 26 个 key 全部 camelCase。
 2. `gender` 传 `MALE`/`FEMALE`，前端展示时映射为 男/女；传其他值返回 400。
 3. 新增评估**不要传** `assessor`/`assessor_id`，后端自动填；纠正（`manual_level ≠ computed_level`）时必须传 `correction_note`，否则 400。
 4. 所有删除为软删除，前端无需区分，仅表现为列表/详情不再出现。
 5. 切换真实接口时，前端 `USE_MOCK` 改为 `false`，`baseURL` 指向 `/api`（或由代理转发）。
-6. 服务端已做取值校验：`scores` key 限 22 项、取值 0/1/2；`computed_level`/`manual_level` 取值 0-3；`gender` 取值 `MALE`/`FEMALE`。传错返回 400，前端无需自行兜底。
+6. 服务端已做取值校验：`scores` key 限 26 项、取值 0~该项满分（多数 0~4）；`computed_level`/`manual_level` 取值 0-4；`gender` 取值 `MALE`/`FEMALE`。传错返回 400，前端无需自行兜底。

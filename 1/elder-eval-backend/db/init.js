@@ -26,6 +26,14 @@ function all(sql, params = []) {
   return db.prepare(sql).all(...params);
 }
 
+// 确保列存在：CREATE TABLE IF NOT EXISTS 不会给已存在的表补列，用 PRAGMA table_info 判断后 ALTER
+function ensureColumn(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((r) => r.name);
+  if (!cols.includes(column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`);
+  }
+}
+
 // 建表：按开发手册统一 snake_case 命名、BIGINT 主键、BOOLEAN 布尔、软删除字段
 function createTables() {
   db.exec(`CREATE TABLE IF NOT EXISTS users (
@@ -64,6 +72,7 @@ function createTables() {
     manual_level INTEGER NOT NULL,
     corrected BOOLEAN NOT NULL DEFAULT 0,
     correction_note TEXT,
+    qa TEXT,
     assessor TEXT,
     assessor_id INTEGER,
     date TEXT NOT NULL,
@@ -77,6 +86,9 @@ function createTables() {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_elders_created_at ON elders(created_at)`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_elder_id ON assessments(elder_id)`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_created_at ON assessments(created_at)`);
+
+  // 兼容已存在的旧库：为 assessments 补 qa 列（问答观察）
+  ensureColumn('assessments', 'qa', 'TEXT');
 }
 
 async function init() {

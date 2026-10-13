@@ -1,6 +1,5 @@
 // 前端(camelCase) <-> 后端(snake_case) 字段与枚举映射
-// 依据 1/api-docs.md：外层字段 snake_case，主键 id 为数字；
-// scores 内 5 个 social 项（lifeAbility/workAbility/timeOrientation/personOrientation/socialContact）保留 camelCase。
+// 依据 1/api-docs.md：外层字段 snake_case，主键 id 为数字；scores 内 26 个指标 key 均为 camelCase。
 
 const GENDER_FROM_API = { MALE: '男', FEMALE: '女' }
 const GENDER_TO_API = { 男: 'MALE', 女: 'FEMALE' }
@@ -35,13 +34,12 @@ export function elderToApi(payload) {
   return out
 }
 
-// 评估：后端 snake_case -> 前端 camelCase（scores/dimension_levels 内容保持原样）
+// 评估：后端 snake_case -> 前端 camelCase（scores 内容保持原样）
 export function assessmentFromApi(a) {
   if (!a) return a
   return {
     ...a,
     elderId: a.elder_id,
-    dimensionLevels: a.dimension_levels,
     computedLevel: a.computed_level,
     manualLevel: a.manual_level,
     correctionNote: a.correction_note,
@@ -55,7 +53,6 @@ export function assessmentFromApi(a) {
 export function assessmentToApi(payload) {
   const {
     elderId,
-    dimensionLevels,
     computedLevel,
     manualLevel,
     correctionNote,
@@ -66,7 +63,6 @@ export function assessmentToApi(payload) {
   } = payload
   const out = { ...rest }
   if (elderId !== undefined && elderId !== null && elderId !== '') out.elder_id = Number(elderId)
-  if (dimensionLevels !== undefined) out.dimension_levels = dimensionLevels
   if (computedLevel !== undefined) out.computed_level = computedLevel
   if (manualLevel !== undefined) out.manual_level = manualLevel
   if (correctionNote !== undefined) out.correction_note = correctionNote

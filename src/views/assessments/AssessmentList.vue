@@ -71,7 +71,7 @@ function levelLabel(level) {
 }
 
 function levelTagType(level) {
-  return ['success', 'info', 'warning', 'danger'][level] || 'info'
+  return ['success', 'info', 'warning', 'danger', 'danger'][level] || 'info'
 }
 
 async function load() {

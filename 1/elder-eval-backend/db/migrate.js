@@ -68,6 +68,7 @@ async function migrate() {
       manual_level INTEGER NOT NULL,
       corrected BOOLEAN NOT NULL DEFAULT 0,
       correction_note TEXT,
+      qa TEXT,
       assessor TEXT,
       assessor_id INTEGER,
       date TEXT NOT NULL,
@@ -102,14 +103,14 @@ async function migrate() {
 
     // 4. 复制 assessments：elder_id/assessor_id 按映射改写；悬空的 assessor_id 置 NULL（姓名保留在 assessor）
     const insertAssess = db.prepare(
-      'INSERT INTO assessments_new (elder_id, scores, dimension_levels, computed_level, manual_level, corrected, correction_note, assessor, assessor_id, date, created_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+      'INSERT INTO assessments_new (elder_id, scores, dimension_levels, computed_level, manual_level, corrected, correction_note, qa, assessor, assessor_id, date, created_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
     for (const a of db.prepare('SELECT * FROM assessments ORDER BY createdAt ASC').all()) {
       const elderId = elderMap[a.elderId] ?? null;
       const assessorId = userMap[a.assessorId] ?? null;
       insertAssess.run(
         elderId, a.scores, a.dimensionLevels, a.computedLevel, a.manualLevel,
-        a.corrected ? 1 : 0, a.correctionNote, a.assessor, assessorId, a.date, a.createdAt, 0
+        a.corrected ? 1 : 0, a.correctionNote, a.qa ?? null, a.assessor, assessorId, a.date, a.createdAt, 0
       );
     }
 

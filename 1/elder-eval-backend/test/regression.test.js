@@ -20,12 +20,14 @@ let base;
 let adminToken;
 let staffToken;
 
+// 26 项国标打分（GB/T 42195-2022）：多数 0~4，上下楼梯/交通 0~3，攻击/抑郁 0~1，意识/视力/听力 0~2
 const SCORES = {
-  feeding: 0, dressing: 1, bowel: 0, bladder: 0, toileting: 1, transfer: 1,
-  walking: 2, stairs: 2, bathing: 2, grooming: 1,
-  cognition: 0, aggression: 0, depression: 0,
-  consciousness: 0, vision: 0, hearing: 1, communication: 0,
-  lifeAbility: 1, workAbility: 1, timeOrientation: 0, personOrientation: 0, socialContact: 1
+  eating: 3, grooming: 3, bathing: 2, dressingUpper: 3, dressingLower: 3,
+  urineControl: 4, stoolControl: 4, toileting: 3,
+  bedMobility: 4, chairTransfer: 4, walking: 3, stairs: 2,
+  timeOrientation: 4, spaceOrientation: 4, personOrientation: 4, memory: 3,
+  comprehension: 4, expression: 4, aggression: 0, depression: 0, consciousness: 2,
+  vision: 2, hearing: 1, dailyAffairs: 3, transport: 2, socialContact: 3
 };
 
 async function api(method, url, { token, body } = {}) {
@@ -188,7 +190,7 @@ test('为评估准备在用的老人', async () => {
 test('新增评估：assessor 由后端自动填充', async () => {
   const { status, data } = await api('POST', '/assessments', {
     token: staffToken,
-    body: { elder_id: elderId, scores: SCORES, dimension_levels: { adl: 2, mental: 0, sensory: 0, social: 1 }, computed_level: 2, manual_level: 2, date: '2026-09-24' }
+    body: { elder_id: elderId, scores: SCORES, computed_level: 2, manual_level: 2, date: '2026-09-24' }
   });
   assert.equal(status, 201);
   assert.equal(data.assessor, '王评估员');
@@ -214,12 +216,12 @@ test('新增评估 scores 含未知 key 返回 400', async () => {
 });
 
 test('新增评估 scores 取值非法返回 400', async () => {
-  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: { ...SCORES, feeding: 3 } } });
+  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: { ...SCORES, eating: 5 } } });
   assert.equal(status, 400);
 });
 
 test('新增评估 computed_level 越界返回 400', async () => {
-  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES, computed_level: 4 } });
+  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES, computed_level: 5 } });
   assert.equal(status, 400);
 });
 
@@ -273,6 +275,58 @@ test('评估详情返回对象', async () => {
 test('评估详情不存在返回 404', async () => {
   const { status } = await api('GET', '/assessments/99999', { token: adminToken });
   assert.equal(status, 404);
+});
+
+// ---- 问答观察（qa）字段 ----
+let qaAssessmentId;
+
+test('新增评估带合法 qa 返回解析后的对象', async () => {
+  const qa = {
+    photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRg==',
+    questions: [
+      { key: 'cognition', question: '请老人做简单计算', answer: 0, note: '' },
+      { key: 'timeOrientation', question: '今天是几号', answer: 1, note: '需提示' },
+    ],
+    summary: '问答观察：认知功能：正常；时间/空间定向：部分受损；',
+  };
+  const { status, data } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES, qa } });
+  assert.equal(status, 201);
+  assert.ok(data.qa);
+  assert.equal(data.qa.photo, qa.photo);
+  assert.equal(data.qa.questions.length, 2);
+  assert.equal(data.qa.questions[0].answer, 0);
+  assert.equal(data.qa.summary, qa.summary);
+  qaAssessmentId = data.id;
+});
+
+test('新增评估不带 qa 返回 null', async () => {
+  const { status, data } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES } });
+  assert.equal(status, 201);
+  assert.equal(data.qa, null);
+});
+
+test('新增评估 qa 非对象返回 400', async () => {
+  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES, qa: 'x' } });
+  assert.equal(status, 400);
+});
+
+test('新增评估 qa.questions 非数组返回 400', async () => {
+  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES, qa: { questions: 'x' } } });
+  assert.equal(status, 400);
+});
+
+test('新增评估 qa.questions answer 越界返回 400', async () => {
+  const { status } = await api('POST', '/assessments', { token: adminToken, body: { elder_id: elderId, scores: SCORES, qa: { questions: [{ key: 'cognition', answer: 5 }] } } });
+  assert.equal(status, 400);
+});
+
+test('评估详情与报告返回 qa 字段', async () => {
+  const detail = await api('GET', `/assessments/${qaAssessmentId}`, { token: adminToken });
+  assert.equal(detail.status, 200);
+  assert.ok(detail.data.qa);
+  const report = await api('GET', `/reports/${qaAssessmentId}`, { token: adminToken });
+  assert.equal(report.status, 200);
+  assert.ok(report.data.assessment.qa);
 });
 
 test('报告返回 assessment 与 elder', async () => {
